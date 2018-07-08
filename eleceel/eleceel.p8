@@ -1,15 +1,15 @@
 pico-8 cartridge // http://www.pico-8.com
 version 16
 __lua__
+game={}
 player={}
 worms={}
 fruit={}
 wormcol=false
 
 function _init()
-  init_player()
-  init_worms()
-  init_fruit()
+  game.state=0
+  game.lblcolor=1
 end
 
 function init_player()
@@ -50,8 +50,29 @@ function init_worms()
 		end
 end
 
-function _draw() 
-  color(5)
+function _draw()
+  if(game.state==0) then
+    draw_welcome()
+  elseif(game.state==1) then
+    draw_game()
+  end 
+end 
+
+function draw_welcome()
+  cls()
+  txtrow=50
+  color(game.lblcolor)
+  print("electric eels",38,txtrow)
+  color(7)
+  print("by noltisoft 2018",30,txtrow+12)
+  print("press ❎ to start",30,txtrow+20)
+  for i=0,10 do
+    spr(0,20+i*8,35)
+    spr(2,20+i*8,80)
+  end
+end
+
+function draw_game()
   cls()
   print("score: "..player.score.."  "..fruit.state)
   map(0,0, 0,8, 16,2)
@@ -63,9 +84,31 @@ function _draw()
   if (fruit.x>-1) and (fruit.y>-1) then
     spr(fruit.sprite, fruit.x, fruit.y)
   end
-end 
+end
 
 function _update() --called at 30fps
+  if(game.state==0) then
+    update_welcome()
+  elseif(game.state==1) then
+    update_game() 
+  end
+end
+
+function update_welcome()
+  game.lblcolor+=1
+  if(game.lblcolor>15) then
+    game.lblcolor=1
+  end
+  
+  if(btn(5)) then
+    init_player()
+    init_worms()
+    init_fruit()
+    game.state=1
+  end
+end
+
+function update_game()
   update_player()
   update_worms()
   update_fruit()
