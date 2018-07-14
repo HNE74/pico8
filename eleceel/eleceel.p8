@@ -40,7 +40,7 @@ end
 function init_worms()
   worms={}
   y=24
-  for i=1,11 do
+  for i=1,4 do
 		  x=rnd(100)+8
 		  worm={}
 		  worm.w=8
@@ -48,10 +48,25 @@ function init_worms()
 		  worm.x=x
 		  worm.y=y
 		  worm.sprite=0
-		  worm.speed=2
+		  worm.speed=rnd(2)+1
+		  worm.wait=0
 		  add(worms, worm)
-		  y+=8
+		  y+=8*3
 		end
+end
+
+function add_worm()
+	 y=22+rnd(11)*8
+	 x=rnd(100)+8
+	 worm={}
+	 worm.w=8
+		worm.h=8
+		worm.x=x
+		worm.y=y
+		worm.sprite=0
+		worm.speed=rnd(2)+1
+		worm.wait=0
+		add(worms, worm)
 end
 
 function _draw()
@@ -78,7 +93,7 @@ end
 
 function draw_game()
   cls()
-  print("score: "..player.score.."  "..fruit.state)
+  print("score: "..player.score)
   map(0,0, 0,8, 16,2)
   map(0,0, 0,112, 16,2)  
   cursor(72,1)
@@ -90,7 +105,7 @@ function draw_game()
   spr(player.sprite, player.x, player.y)  
     
   if(game.state==2) then
-    cursor(50,60)
+    cursor(45,60)
     print("game over!")
     game.wait+=1
     if(game.wait>100) then
@@ -168,6 +183,9 @@ function update_fruit()
     elseif(fruit.sprite==11) then
       player.score+=50
     end
+    if(#worms<15) then
+      add_worm()
+    end
     return
   end
   
@@ -190,13 +208,22 @@ function update_worms()
   		if (w.x+w.speed > 128-w.w) or (w.x+w.speed < 0) then 
   		  w.speed=-w.speed
   	   w.speed+=rnd(2)-1
-  	   if (w.speed>3) then
-  	     w.speed=3
-  	   elseif(w.speed<-3) then
-  	     w.speed=-3
+  	   if (w.speed>2) then
+  	     w.speed=2
+  	   elseif(w.speed<-2) then
+  	     w.speed=-2
   	   end
   		end
   		w.x+=w.speed
+  		
+  		w.wait+=1
+  		if(w.wait>5) then
+  				w.sprite+=1
+  				w.wait=0
+  		  if(w.sprite>2) then
+  		    w.sprite=0
+  		  end
+  		end
   end
 end
 
