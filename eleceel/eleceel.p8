@@ -1,6 +1,7 @@
 pico-8 cartridge // http://www.pico-8.com
 version 16
 __lua__
+cartdata("zep_eleceel")
 game={}
 player={}
 worms={}
@@ -12,6 +13,7 @@ function _init()
   game.lblcolor=1
   game.wait=0
   game.lives=0
+  game.high=dget(0)
 end
 
 function init_player()
@@ -79,14 +81,16 @@ end
 
 function draw_welcome()
   cls()
-  txtrow=50
+  txtrow=40
   color(game.lblcolor)
   print("electric eels",38,txtrow)
+  color(6)
+  print("highscore:"..game.high,38,txtrow+15)
   color(7)
-  print("by noltisoft 2018",30,txtrow+12)
-  print("press ❎ to start",30,txtrow+20)
+  print("by noltisoft 2018",30,txtrow+25)
+  print("press ❎ to start",30,txtrow+32)
   for i=0,10 do
-    spr(0,20+i*8,35)
+    spr(0,20+i*8,30)
     spr(2,20+i*8,80)
   end
 end
@@ -105,12 +109,17 @@ function draw_game()
   spr(player.sprite, player.x, player.y)  
     
   if(game.state==2) then
-    cursor(45,60)
-    print("game over!")
+    print("game over!",45,60)
+    if(player.score>game.high) then
+      print("congratulations new highscore!",2,70)
+    end
+    
     game.wait+=1
     if(game.wait>100) then
       game.wait=0
       game.state=0
+      game.high=player.score
+      dset(0,game.high)
     end
   else
     for w in all(worms) do
