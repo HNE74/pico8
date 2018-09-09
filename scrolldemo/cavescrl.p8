@@ -3,39 +3,32 @@ version 16
 __lua__
 
 cave={}
-cave.bottomy=100
-cave.minbottomy=80
-cave.topy=20
-cave.maxtopy=70
-cave.start=true
-cave.color=3
-cave.background=0
 
 player={}
-player.x=50
-player.y=60
-player.oldx=50
-player.oldy=60
-player.xspeed=0
-player.yspeed=0
-player.w=16
-player.h=8
-player.xcoll={0,3,5,7,2,4,6,8,9,11,13,14,15,13,11,9,8,12,12}
-player.ycoll={0,0,2,4,7,7,7,7,2,2, 2, 3 ,4 ,5, 6,6,7,3,4}
 
 game={}
-game.state=1
-game.minecnt=0
-game.mineprob=5
-
-mine={}
-mine.cnt=20
-mine.prob=5
-mine.col1=9
-mine.col2=13
-
 
 function _init()
+  cave.bottomy=100
+  cave.minbottomy=80
+  cave.topy=20
+  cave.maxtopy=70
+  cave.start=true
+  cave.color=3
+  cave.background=0
+
+  game.state=1
+
+  player.x=50
+  player.y=60
+  player.oldx=50
+  player.oldy=60
+  player.xspeed=0
+  player.yspeed=0
+  player.w=16
+  player.h=8
+  player.xcoll={0,3,5,7,2,4,6,8,9,11,13,14,15,13,11,9,8,15,15}
+  player.ycoll={0,0,2,4,7,7,7,7,2,2, 2, 3 ,4 ,5, 6,6,7,0,7}
 end
 
 function _draw() 
@@ -44,12 +37,12 @@ function _draw()
       draw_start()
     else
       if game.state==1 then
-       delete_player()
-       draw_mine()
-       right_left()
-       player_coll(player.x,player.y)
-       spr(1,player.x,player.y,2,1)
+        delete_player()
+        right_left()
+        spr(1,player.x,player.y,2,1)
       elseif game.state==2 then
+        delete_player()
+        spr(1,player.x,player.y,2,1)
         print("booom!",50,50,5)
       end
     end
@@ -68,7 +61,7 @@ function player_coll(xnew,ynew)
   for i=0,val-1 do 
     cl=pget(xnew+player.xcoll[i+1],ynew+player.ycoll[i+1])
     printh(xnew+player.xcoll[i+1].."/"..ynew+player.ycoll[i+1].."="..cl)
-    if cl==cave.color or cl==mine.col1 or cl==mine.col2 then
+    if cl==cave.color then
       game.state=2
       return   
     end   
@@ -124,22 +117,6 @@ function draw_bottom_line(x)
   line(x+1,127,x+1,cave.bottomy,cave.color)
 end
 
-function draw_mine()
- if mine.cnt<20 then
-    mine.cnt+=1
- elseif flr(rnd(mine.prob))==1 then
-    span=cave.bottomy-cave.topy-4
-    yp=flr(rnd(span))+cave.topy+2
-    mine.cnt=0
-
-    pset(125,yp,mine.col1)
-    pset(126,yp,mine.col2)
-    pset(127,yp,mine.col1)
-    pset(126,yp-1,mine.col1)
-    pset(126,yp+1,mine.col1)          
- end
-end
-
 function _update() --called at 30fps
   update_player()
 end
@@ -147,6 +124,14 @@ end
 function update_player()
   player.xspeed=0
   player.yspeed=0
+  
+  if game.state==2 then
+   if (btn(4) or btn(5)) then
+    _init()
+   else
+    return
+   end
+  end 
   
   if(btn(0)) then
     player.xspeed=-2
