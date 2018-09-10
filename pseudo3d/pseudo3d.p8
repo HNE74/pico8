@@ -1,6 +1,7 @@
 pico-8 cartridge // http://www.pico-8.com
 version 16
 __lua__
+-- position of the viewers eye
 eyex=0
 eyey=-20
 eyez=-50
@@ -13,11 +14,12 @@ function _init()
   init_objs()
 end
 
+-- defines rectangles as objects
 function init_objs()
   zp=-800
   for i=1,10 do
     ob={}
-    ob.x=-200+flr(rnd(400))
+    ob.x=-300+flr(rnd(600))
     ob.y=120
     ob.w=40
     ob.h=100
@@ -28,6 +30,7 @@ function init_objs()
   end
 end
 
+-- defines surface lines
 function init_lines()
   zpos=100
   for i=1,10 do
@@ -39,19 +42,20 @@ function init_lines()
     add(lines,l)
     zpos-=50
   end
-  
-  if (btn(1)) then
-    exex+=5
-    printh("u")
-  end
-  if (btn(2)) then 
-    exex-=5
-    printh("d")
-  end 
 end
 
+-- draws lines for the ground surface
+-- and objects based on their 3d
+-- coordinates transformed to screen
+-- coordinates
 function _draw()
   cls()
+  color(3)
+  print("pseudo 3d demo")
+  print("   by noltisoft (c) 2018")
+  color(4)
+  print("use arrow and button keys")
+  print("to change user perspective")
   for l in all(lines) do
     left=to_screen_coord(l.xl,l.y,l.z)
     right=to_screen_coord(l.xr,l.y,l.z)
@@ -64,6 +68,8 @@ function _draw()
   end
 end
 
+-- transforms 3 dimensional coordinates
+-- to 2 dimensional screen coordinates
 function to_screen_coord(x,y,z)
   result={}
   xp=eyez*(x-eyex)/(eyez+z)+eyex
@@ -73,6 +79,8 @@ function to_screen_coord(x,y,z)
   return result
 end
 
+-- updates objects and surface line
+-- 3 dimensional coordinates
 function _update()
   for line in all(lines) do
     line.z+=10
@@ -81,12 +89,23 @@ function _update()
   for o in all(objs) do
     o.z+=10
     if(o.z>0) then
+      -- send object to back
       o.z-=800
-      o.x=-200+flr(rnd(400))
+      o.x=-300+flr(rnd(600))
       o.clr=1+flr(rnd(14))
+      
+      -- reorder object list
+      newobjs={}
+      add(newobjs,o)
+      for i=1,#objs-1 do
+        add(newobjs,objs[i])
+      end
+      objs=newobjs
     end
   end
   
+  -- allow user change of eye
+  -- coordinates
   if (btn(0)) eyex+=1
   if (btn(1)) eyex-=1
   if (btn(2)) eyey+=1
