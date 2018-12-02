@@ -1,98 +1,141 @@
 pico-8 cartridge // http://www.pico-8.com
 version 16
 __lua__
-map={}
-map[1 ]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 }
-map[2 ]={1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
-map[3 ]={1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1 }
-map[4 ]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1 }
-map[5 ]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
-map[6 ]={1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1 }
-map[7 ]={1,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1 }
-map[8 ]={1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
-map[9 ]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
-map[10]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
-map[11]={1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
-map[12]={1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1 }
-map[13]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
-map[14]={1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,1 }
-map[15]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
-map[16]={1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
-map[17]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
-map[18]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1 }
-map[19]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
-map[20]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 }
-map.xcamoffset=0
-map.ycamoffset=16
-map.xcam=0
-map.ycam=0
+world={}
+world[1 ]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 }
+world[2 ]={1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
+world[3 ]={1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1 }
+world[4 ]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1 }
+world[5 ]={1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
+world[6 ]={1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1 }
+world[7 ]={1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1 }
+world[8 ]={1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
+world[9 ]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
+world[10]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
+world[11]={1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
+world[12]={1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1 }
+world[13]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
+world[14]={1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,1 }
+world[15]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
+world[16]={1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
+world[17]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
+world[18]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1 }
+world[19]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
+world[20]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 }
+world.xcamoffset=0
+world.ycamoffset=18
+world.xcam=0
+world.ycam=0
+world.tiles={}
 
 player={}
-player.xdraw=128/2
-player.ydraw=128/2+map.xcamoffset
-player.tile=nil
+player.w=9
+player.h=9
+player.xp=128/2-world.xcamoffset
+player.yp=128/2-world.ycamoffset
 
 function _init()
+  create_tiles()
 end
 
 function _draw()
-  cls()
-  camera(0,0)
-  clip()
-  print ("mapcam ")
-  if player.tile~=nil then
-    print(player.tile)
-  end 
-  draw_map()
+  draw_header()
+  draw_world()
   draw_player()
 end 
 
-function draw_player()
+function draw_header()
+  cls()
   camera(0,0)
-  spr(1,player.xdraw,player.ydraw)
+  clip()
+  print("player.x="..player.xp.." player.y="..player.yp)
+  print("camera.x="..world.xcam.." camera.y="..world.ycam)
 end
 
-function draw_map()
+function draw_player()
+  camera(world.xcam-world.xcamoffset,world.ycam-world.ycamoffset)
+  spr(1,player.xp,player.yp)
+end
+
+function draw_world()
   clip(0,16,128,140)
-  camera(map.xcam-map.xcamoffset,map.ycam-map.ycamoffset)
-  for y=1,#map do
-    for x=1,#map[y] do
-      if map[y][x]==1 then
-        spr(0,((x-1)*8),((y-1)*8))
+  camera(world.xcam-world.xcamoffset,world.ycam-world.ycamoffset)
+  for t in all(world.tiles) do
+    if t.value==1 then
+      spr(t.sprite,t.xp,t.yp)
+    end
+  end
+end
+
+function create_tiles()
+  for y=1,#world do
+    for x=1,#world[y] do
+      if world[y][x]==1 then
+        xt=((x-1)*9)
+        yt=((y-1)*9)
+      	 tile={}
+      	 tile.h=9
+      	 tile.w=9
+      	 tile.sprite=0
+        tile.xp=xt;tile.yp=yt
+        tile.value=world[y][x]
+        add(world.tiles,tile)        
       end
     end
   end
 end
 
-function fetch_map_tile(xd, yd)
-  xt=ceil((player.xdraw+map.xcam)/8)
-  yt=ceil((player.ydraw+map.ycam-map.ycamoffset)/8)
-  xt+=1+xd
-  yt+=1+yd
-  printh (xt.."-"..yt)
-  return map[yt][xt]
+function intersect(obj1, obj2)
+  if obj1.yp>=obj2.yp+obj2.h then
+    return false
+  elseif obj1.yp+obj1.h<=obj2.yp then
+    return false
+  elseif obj1.xp>=obj2.xp+obj2.w then
+    return false
+  elseif obj1.xp+obj1.w<=obj2.xp then
+    return false
+  end
+  return true
+end
+
+function player_tile_coll()
+  for t in all(world.tiles) do
+    if intersect(t,player) then
+      return true
+    end
+  end
+  return false
 end
 
 function _update() 
-    if (btn(0)) then  
-      map.xcam-=1
-      player.tile=fetch_map_tile(-1,0)
-    end 
-    if (btn(1)) then 
-      map.xcam+=1
-      player.tile=fetch_map_tile(0,0)
-    end
-    if (btn(2)) then 
-      map.ycam-=1
-      player.tile=fetch_map_tile(0,-1)
-    end
-    if (btn(3)) then 
-      map.ycam+=1
-      player.tile=fetch_map_tile(0,0)      
-    end
+  xd=0;yd=0;
+  if (btn(0)) then  
+    xd=-1
+  end 
+  if (btn(1)) then 
+    xd=1
+  end
+  if (btn(2)) then 
+    yd=-1
+  end
+  if (btn(3)) then 
+    yd=1
+  end
+
+  update_world()
 end
 
-
+function update_world()
+  player.xp+=xd
+  player.yp+=yd
+  if player_tile_coll() then
+    player.xp-=xd
+    player.yp-=yd
+  else
+    world.xcam+=xd
+    world.ycam+=yd
+  end  
+end
 __gfx__
 44444044000990000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 44444044000990000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -102,6 +145,6 @@ __gfx__
 00000000006006000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 44444044060000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 44444044660000660000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-__map__
-0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-0001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+000000d0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
