@@ -23,14 +23,14 @@ world[18]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1 }
 world[19]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
 world[20]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 }
 world.xcamoffset=0
-world.ycamoffset=18
+world.ycamoffset=14
 world.xcam=0
 world.ycam=0
 world.tiles={}
 
 player={}
-player.w=9
-player.h=9
+player.w=8
+player.h=8
 player.xp=128/2-world.xcamoffset
 player.yp=128/2-world.ycamoffset
 
@@ -58,7 +58,7 @@ function draw_player()
 end
 
 function draw_world()
-  clip(0,16,128,140)
+  clip(0,world.ycamoffset,128,140)
   camera(world.xcam-world.xcamoffset,world.ycam-world.ycamoffset)
   for t in all(world.tiles) do
     if t.value==1 then
@@ -71,11 +71,11 @@ function create_tiles()
   for y=1,#world do
     for x=1,#world[y] do
       if world[y][x]==1 then
-        xt=((x-1)*9)
-        yt=((y-1)*9)
+        xt=((x-1)*8)
+        yt=((y-1)*8)
       	 tile={}
-      	 tile.h=9
-      	 tile.w=9
+      	 tile.h=8
+      	 tile.w=8
       	 tile.sprite=0
         tile.xp=xt;tile.yp=yt
         tile.value=world[y][x]
