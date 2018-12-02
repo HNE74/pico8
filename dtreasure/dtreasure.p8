@@ -66,7 +66,7 @@ function create_player()
 end
 
 function create_dragon()
-  dragon.w=24
+  dragon.w=32
   dragon.h=16
   dragon.xp=8*15
   dragon.yp=8*15
@@ -167,7 +167,8 @@ function update_world(xd,yd)
   player.xp+=xd
   player.yp+=yd
   tilecol=player_tile_coll()
-  if tilecol~=nil and tilecol.value==1 then
+  dtouch=intersect(player,dragon)
+  if (tilecol~=nil and tilecol.value==1) or dtouch==true then
     player.xp-=xd
     player.yp-=yd
   else
@@ -200,6 +201,7 @@ function take_item(tile)
     game.score+=100
   end    
   tile.value=0
+  tile.sprite=nil
 end
 
 function intersect(obj1, obj2)
@@ -217,7 +219,7 @@ end
 
 function player_tile_coll()
   for t in all(world.tiles) do
-    if intersect(t,player) then
+    if t.value>0 and intersect(t,player) then
       return t
     end
   end
