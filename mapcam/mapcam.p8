@@ -108,7 +108,7 @@ function player_tile_coll()
 end
 
 function _update() 
-  xd=0;yd=0;
+  local xd=0;yd=0;
   if (btn(0)) then  
     xd=-1
   end 
@@ -122,10 +122,10 @@ function _update()
     yd=1
   end
 
-  update_world()
+  update_world(xd,yd)
 end
 
-function update_world()
+function update_world(xd,yd)
   player.xp+=xd
   player.yp+=yd
   if player_tile_coll() then
