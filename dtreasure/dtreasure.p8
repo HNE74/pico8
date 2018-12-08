@@ -41,6 +41,7 @@ end
 
 function create_game()
   game={}
+  game.bgcolor=0
   game.score=0
   game.state=1
   game.lives=3
@@ -69,10 +70,13 @@ function create_player()
   player.fcount=0
   player.sword=nil
   player.swordpos=0
+  player.sowrdrawn=false
 end
 
 function create_sword(pos)
   sword={}
+  sword.h=8
+  sword.w=8
   if pos==1 then
     sword.xp=player.xp+player.w
     sword.yp=player.yp
@@ -117,6 +121,7 @@ function create_dragon()
   dragon.fire={}
   dragon.fireprob=100
   dragon.firemax=3
+  dragon.hits=0
 end
 
 function create_dragon_fire()
@@ -155,7 +160,7 @@ function _draw()
 end 
 
 function draw_header()
-  cls()
+  cls(game.bgcolor)
   camera(0,0)
   clip()
   print("score:"..game.score.." lives:"..game.lives)
@@ -171,7 +176,6 @@ function draw_player()
   end
   
   if player.sword~=nil then
-    printh("sword"..player.swordpos.."-"..sword.sprite.."-"..sword.xp.."-"..sword.yp)
     spr(sword.sprite,sword.xp,sword.yp)
   end
 end
@@ -235,9 +239,9 @@ function fetch_tile_sprite(x,y)
   end
 end
 
-function _update() 
+function _update()
+  game.bgcolor=0 
   local xd=0;yd=0;
-  player.sword=nil
   
   local b0,b1,b2,b3=btn(0),btn(1),btn(2),btn(3)
   local b4,b5=btn(4),btn(5)
@@ -258,11 +262,18 @@ function _update()
     yd=1
     player.swordpos=2
   end
-
-  if b5 then
-    player.sword=create_sword(player.swordpos)
+    
+  if b5 and game.state==1 then
+    player.sword=create_sword(player.swordpos)  
+    if not player.sworddrawn then
+      check_dragon_hit()
+      player.sworddrawn=true
+    end   
+  else
+    player.sworddrawn=false
+    player.sword=nil 
   end
-  
+    
   if game.state==1 then
     update_world(xd,yd)
   elseif game.state==2 then
@@ -271,6 +282,16 @@ function _update()
   
   update_dragon_fire()
 end
+
+function check_dragon_hit()
+  if player==nil or player.sword==nil or dragon==nil then
+  end
+  if intersect(player.sword,dragon) then
+    dragon.hits+=1
+    game.bgcolor=4
+  end
+end
+
 
 function update_dragon_fire()
   create_dragon_fire()
@@ -338,6 +359,14 @@ function take_item(tile)
 end
 
 function intersect(obj1, obj2)
+  if obj1==nil or obj2==nil or
+     obj1.xp==nil or obj2.yp==nill or
+     obj1.yp==nil or obj2.yp==nil or
+     obj1.w==nil or obj2.w==nil or
+     obj1.h==nil or obj2.h== nil then
+    return false
+  end 
+     
   if obj1.yp>=obj2.yp+obj2.h then
     return false
   elseif obj1.yp+obj1.h<=obj2.yp then
