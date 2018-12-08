@@ -45,6 +45,12 @@ function create_game()
   game.score=0
   game.state=1
   game.lives=3
+
+  game.states={}
+  game.states["run"]=1
+  game.states["player_hit"]=2
+  game.states["dragon_dead"]=3
+  game.state=game.states["run"]
 end
 
 function animate_object(o)
@@ -182,9 +188,9 @@ end
 
 function draw_player()
   camera(world.xcam-world.xcamoffset,world.ycam-world.ycamoffset)
-  if game.state==1 then
+  if game.state==game.states["run"] then
     spr(player.sprite,player.xp,player.yp)
-  elseif game.state==2 then
+  elseif game.state==game.states["player_hit"] then
     spr(dead.sprite,dead.xp,dead.yp)
   end
   
@@ -205,7 +211,7 @@ end
 
 function draw_dragon()
   camera(world.xcam-world.xcamoffset,world.ycam-world.ycamoffset)
-  if game.state==3 then
+  if game.state==game.states["dragon_dead"] then
     for y=0,1 do
       for x=0,3 do
         spr(dragon_dead.sprite,dragon_dead.xp+x*dragon_dead.w,dragon_dead.yp+y*dragon_dead.h)
@@ -284,7 +290,7 @@ function _update()
     player.swordpos=2
   end
     
-  if b5 and game.state==1 then
+  if b5 and game.state==game.states["run"] then
     player.sword=create_sword(player.swordpos)  
     if not player.sworddrawn then
       check_dragon_hit()
@@ -295,11 +301,11 @@ function _update()
     player.sword=nil 
   end
     
-  if game.state==1 then
+  if game.state==game.states["run"] then
     update_world(xd,yd)
-  elseif game.state==2 then
+  elseif game.state==game.states["player_hit"] then
     update_player_hit()
-  elseif game.state==3 then
+  elseif game.state==game.states["dragon_dead"] then
     update_dragon_dead()
   end
   
@@ -314,7 +320,7 @@ function check_dragon_hit()
     game.bgcolor=4
     if dragon.hits>dragon.maxhits then
       create_dragon_dead()
-      game.state=3
+      game.state=game.states["dragon_dead"]
     end
   end
 end
