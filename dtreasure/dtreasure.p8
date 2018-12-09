@@ -1,37 +1,10 @@
 pico-8 cartridge // http://www.pico-8.com
 version 16
 __lua__
-world={}
-world[1 ]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 }
-world[2 ]={1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
-world[3 ]={1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1 }
-world[4 ]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1 }
-world[5 ]={1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
-world[6 ]={1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1 }
-world[7 ]={1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1 }
-world[8 ]={1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
-world[9 ]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
-world[10]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
-world[11]={1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
-world[12]={1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1 }
-world[13]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
-world[14]={1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,1 }
-world[15]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
-world[16]={1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
-world[17]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
-world[18]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1 }
-world[19]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
-world[20]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 }
-world.xcamoffset=0
-world.ycamoffset=14
-world.xcam=0
-world.ycam=0
-world.tiles={}
-world.width=21
-world.height=20
 
 function _init()
   create_game()
+  create_world()
   create_tiles()
   create_dragon()
   create_treasure_tiles()
@@ -39,6 +12,32 @@ function _init()
   create_shield_tile()
   create_player()
   create_dead()
+end
+
+function create_world()
+  world={}
+  world.xcamoffset=0
+  world.ycamoffset=14
+  world.xcam=0
+  world.ycam=0
+  world.tiles={}
+  world.width=30
+  world.height=30
+
+  for y=1,world.height do
+    world[y]={}
+    if y==1 or y==world.height then
+      for x=1,world.width do
+        add(world[y],1)
+      end
+    else
+      add(world[y],1)
+      for x=2,world.width-1 do
+        add(world[y],0)
+      end
+      add(world[y],1)
+    end
+  end
 end
 
 function create_game()
@@ -68,8 +67,8 @@ end
 
 function create_tiles()
   for y=1,#world do
-    for x=1,#world[y] do        xt=((x-1)*8)
-      yt=((y-1)*8)
+    for x=1,#world[y] do        
+      xt,yt=((x-1)*8),((y-1)*8)
     	 tile={}
     	 tile.h,tile.w=8,8
     	 tile.sprite=fetch_tile_sprite(x,y)
