@@ -23,7 +23,7 @@ function create_world()
   world.tiles={}
   world.width=30
   world.height=30
-  world.obstacles=20
+  world.obstacles=25
 
   for y=1,world.height do
     world[y]={}
@@ -108,7 +108,7 @@ function create_sword_tile()
   local drcol=true
   while drcol or tp==nil or tp.value~=0 do
     tp=world.tiles[flr(rnd(#world.tiles))+1]
-    drcol=intersect(tp,dragon)
+    drcol=intersect(tp,dragon) 
   end
 
   tp.value=8
@@ -118,7 +118,7 @@ end
 function create_shield_tile()
   local tp=nil
   local drcol=true
-  while tp==nil or tp.value~=0 do
+  while drcol or tp==nil or tp.value~=0 do
     tp=world.tiles[flr(rnd(#world.tiles))+1]
     drcol=intersect(tp,dragon)
   end
@@ -243,8 +243,6 @@ function create_dragon()
   dragon={}
   dragon.w=32
   dragon.h=16
-  dragon.xp=8*15
-  dragon.yp=8*15
   dragon.maincolor=1
   dragon.sprite=16
   dragon.fire={}
@@ -255,11 +253,13 @@ function create_dragon()
 
   local dcol=true
   while(dcol==true) do
-    dragon.xp=flr(rnd(world.width*tile.w))
-    dragon.yp=flr(rnd(world.height*tile.h))
+    dragon.xp=flr(rnd(world.width))*tile.w
+    dragon.yp=flr(rnd(world.height))*tile.h
+    dcol=false
     for t in all(world.tiles) do
-      if not intersect(t,dragon) then
-        dcol=false
+      local anycol=intersect(t,dragon)
+      if anycol and t.value~=0 then
+        dcol=true
       end
     end
   end  
