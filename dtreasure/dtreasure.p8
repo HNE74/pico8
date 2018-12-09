@@ -23,6 +23,7 @@ function create_world()
   world.tiles={}
   world.width=30
   world.height=30
+  world.obstacles=20
 
   for y=1,world.height do
     world[y]={}
@@ -37,6 +38,16 @@ function create_world()
       end
       add(world[y],1)
     end
+  end
+  
+  for i=1,world.obstacles do
+    local ox=-1
+    local oy=-1
+    while ox==-1 or world[ox][oy]==1 do
+      ox=flr(rnd(world.width))+1
+      oy=flr(rnd(world.height))+1
+    end
+    world[ox][oy]=1
   end
 end
 
@@ -241,6 +252,17 @@ function create_dragon()
   dragon.firemax=3
   dragon.hits=0
   dragon.maxhits=2
+
+  local dcol=true
+  while(dcol==true) do
+    dragon.xp=flr(rnd(world.width*tile.w))
+    dragon.yp=flr(rnd(world.height*tile.h))
+    for t in all(world.tiles) do
+      if not intersect(t,dragon) then
+        dcol=false
+      end
+    end
+  end  
 end
 
 function create_dragon_fire()
