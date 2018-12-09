@@ -4,6 +4,9 @@ __lua__
 
 function _init()
   create_game()
+end
+
+function init_run()
   create_world()
   create_tiles()
   create_dragon()
@@ -12,6 +15,22 @@ function _init()
   create_shield_tile()
   create_player()
   create_dead()
+end
+
+function create_game()
+  game={}
+  game.bgcolor=0
+  game.score=0
+  game.state=1
+  game.lives=3
+
+  game.states={}
+  game.states["start"]=0
+  game.states["run"]=1
+  game.states["player_hit"]=2
+  game.states["dragon_dead"]=3
+  game.states["game_over"]=4
+  game.state=game.states["start"]
 end
 
 function create_world()
@@ -49,20 +68,6 @@ function create_world()
     end
     world[ox][oy]=1
   end
-end
-
-function create_game()
-  game={}
-  game.bgcolor=0
-  game.score=0
-  game.state=1
-  game.lives=3
-
-  game.states={}
-  game.states["run"]=1
-  game.states["player_hit"]=2
-  game.states["dragon_dead"]=3
-  game.state=game.states["run"]
 end
 
 function animate_object(o)
@@ -291,8 +296,22 @@ function create_dragon_fire()
   add(dragon.fire,fire)
 end
 
-
 function _draw()
+  if game.state==game.states["start"] then
+    draw_start()
+  elseif game.state==game.states["run"] 
+    or game.state==game.states["player_hit"]
+    or game.state==game.states["dragon_dead"] then    
+    draw_run()
+  end
+end
+
+function draw_start()
+  cls()
+  print("dragon treasure")
+end
+
+function draw_run()
   draw_header()
   draw_world()
   draw_player()
@@ -357,6 +376,24 @@ function draw_dragon_fire()
 end
 
 function _update()
+  if game.state==game.states["start"] then
+    update_start()
+  elseif game.state==game.states["run"] 
+    or game.state==game.states["player_hit"]
+    or game.state==game.states["dragon_dead"] then    
+    update_run()
+  end
+end
+
+function update_start()
+  local b4,b5=btn(4),btn(5)
+  if b4 then
+    init_run()
+    game.state=game.states["run"]
+  end
+end
+
+function update_run()
   game.bgcolor=0 
   local xd=0;yd=0;
   
