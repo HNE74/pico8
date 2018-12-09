@@ -5,12 +5,12 @@ world={}
 world[1 ]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 }
 world[2 ]={1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
 world[3 ]={1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1 }
-world[4 ]={1,0,2,0,3,0,4,0,5,0,0,0,0,0,0,0,0,1,0,0,1 }
+world[4 ]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1 }
 world[5 ]={1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
-world[6 ]={1,0,6,0,7,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1 }
-world[7 ]={1,0,0,0,0,0,8,0,0,0,0,1,0,0,0,0,0,0,0,0,1 }
+world[6 ]={1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1 }
+world[7 ]={1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1 }
 world[8 ]={1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
-world[9 ]={1,0,0,0,0,0,9,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
+world[9 ]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
 world[10]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
 world[11]={1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
 world[12]={1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1 }
@@ -33,10 +33,12 @@ world.height=20
 function _init()
   create_game()
   create_tiles()
+  create_dragon()
+  create_treasure_tiles()
+  create_sword_tile()
+  create_shield_tile()
   create_player()
   create_dead()
-  create_dead()
-  create_dragon()
 end
 
 function create_game()
@@ -62,6 +64,101 @@ function animate_object(o)
       o.sprite=o.minsprite
     end
   end 
+end
+
+function create_tiles()
+  for y=1,#world do
+    for x=1,#world[y] do        xt=((x-1)*8)
+      yt=((y-1)*8)
+    	 tile={}
+    	 tile.h,tile.w=8,8
+    	 tile.sprite=fetch_tile_sprite(x,y)
+      tile.xp,tile.yp=xt,yt
+      tile.value=world[y][x]
+      add(world.tiles,tile)        
+    end
+  end
+end
+
+function create_treasure_tiles()  
+  local tp=nil
+  for tr=2,7 do
+    local drcol=true
+    while drcol or tp==nil or tp.value~=0 do
+      tp=world.tiles[flr(rnd(#world.tiles))+1]
+      drcol=intersect(tp,dragon)   
+    end
+    tp.value=tr
+    tp.sprite=fetch_tileval_sprite(tp.value)
+  end
+end
+
+function create_sword_tile()  
+  local tp=nil
+  local drcol=true
+  while drcol or tp==nil or tp.value~=0 do
+    tp=world.tiles[flr(rnd(#world.tiles))+1]
+    drcol=intersect(tp,dragon)
+  end
+
+  tp.value=8
+  tp.sprite=fetch_tileval_sprite(tp.value)
+end
+
+function create_shield_tile()
+  local tp=nil
+  local drcol=true
+  while tp==nil or tp.value~=0 do
+    tp=world.tiles[flr(rnd(#world.tiles))+1]
+    drcol=intersect(tp,dragon)
+  end
+
+  tp.value=9
+  tp.sprite=fetch_tileval_sprite(tp.value)
+end
+
+function fetch_tileval_sprite(val)
+  if val==1 then
+    return 0
+  elseif val==2 then
+    return 4
+  elseif val==3 then
+    return 5
+  elseif val==4 then
+    return 6
+  elseif val==5 then
+    return 7
+  elseif val==6 then
+    return 8
+  elseif val==7 then
+    return 9
+  elseif val==8 then
+    return 27
+  elseif val==9 then
+    return 28
+  end    
+end
+
+function fetch_tile_sprite(x,y)
+  if world[y][x]==1 then
+    return 0
+  elseif world[y][x]==2 then
+    return 4
+  elseif world[y][x]==3 then
+    return 5
+  elseif world[y][x]==4 then
+    return 6
+  elseif world[y][x]==5 then
+    return 7
+  elseif world[y][x]==6 then
+    return 8
+  elseif world[y][x]==7 then
+    return 9
+  elseif world[y][x]==8 then
+    return 27
+  elseif world[y][x]==9 then
+    return 28
+  end    
 end
 
 function create_player()
@@ -236,46 +333,6 @@ function draw_dragon_fire()
   for f in all(dragon.fire) do
     spr(f.sprite,f.xp,f.yp)
   end
-end
-
-function create_tiles()
-  for y=1,#world do
-    for x=1,#world[y] do
-      if world[y][x]~=0 then
-        xt=((x-1)*8)
-        yt=((y-1)*8)
-      	 tile={}
-      	 tile.h=8
-      	 tile.w=8
-      	 tile.sprite=fetch_tile_sprite(x,y)
-        tile.xp=xt;tile.yp=yt
-        tile.value=world[y][x]
-        add(world.tiles,tile)        
-      end
-    end
-  end
-end
-
-function fetch_tile_sprite(x,y)
-  if world[y][x]==1 then
-    return 0
-  elseif world[y][x]==2 then
-    return 4
-  elseif world[y][x]==3 then
-    return 5
-  elseif world[y][x]==4 then
-    return 6
-  elseif world[y][x]==5 then
-    return 7
-  elseif world[y][x]==6 then
-    return 8
-  elseif world[y][x]==7 then
-    return 9
-  elseif world[y][x]==8 then
-    return 27
-  elseif world[y][x]==9 then
-    return 28
-  end    
 end
 
 function _update()
@@ -456,6 +513,16 @@ end
 function player_fire_coll()
   for f in all(dragon.fire) do
     if intersect(player,f) then
+      if player.hassword then
+        player.hassword=false
+        create_sword_tile()
+      end
+      
+      if player.hasshield then
+        player.hasshield=false
+        create_shield_tile()
+      end
+      
       game.lives-=1
       game.state=2
       create_dead()
