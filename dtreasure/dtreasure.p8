@@ -8,9 +8,9 @@ world[3 ]={1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1 }
 world[4 ]={1,0,2,0,3,0,4,0,5,0,0,0,0,0,0,0,0,1,0,0,1 }
 world[5 ]={1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
 world[6 ]={1,0,6,0,7,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1 }
-world[7 ]={1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1 }
+world[7 ]={1,0,0,0,0,0,8,0,0,0,0,1,0,0,0,0,0,0,0,0,1 }
 world[8 ]={1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
-world[9 ]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
+world[9 ]={1,0,0,0,0,0,9,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
 world[10]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
 world[11]={1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
 world[12]={1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1 }
@@ -74,9 +74,11 @@ function create_player()
   player.sprite=player.minsprite
   player.aframe=3
   player.fcount=0
+  player.hassword=false
   player.sword=nil
   player.swordpos=0
   player.sowrdrawn=false
+  player.hasshield=false
   player.shieldsprite=28
   player.shielddrawn=false
 end
@@ -269,7 +271,11 @@ function fetch_tile_sprite(x,y)
     return 8
   elseif world[y][x]==7 then
     return 9
-  end
+  elseif world[y][x]==8 then
+    return 27
+  elseif world[y][x]==9 then
+    return 28
+  end    
 end
 
 function _update()
@@ -296,14 +302,15 @@ function _update()
     player.swordpos=2
   end
     
-  if b4 then
+  if b4 and player.hasshield then
     player.shielddrawn=true
     xd,yd=0,0 
   else
     player.shielddrawn=false
   end
   
-  if not b4 and b5 and game.state==game.states["run"] then
+  if player.hassword and
+     not b4 and b5 and game.state==game.states["run"] then
     player.sword=create_sword(player.swordpos)  
     if not player.sworddrawn then
       check_dragon_hit()
@@ -388,7 +395,7 @@ function update_world(xd,yd)
     player.xp-=xd
     player.yp-=yd
   else
-    if tilecol~=nil and tilecol.value>=2 and tilecol.value<=7 then
+    if tilecol~=nil and tilecol.value>=2 and tilecol.value<=9 then
       take_item(tilecol)
     end  
  
@@ -415,7 +422,12 @@ function take_item(tile)
     game.score+=50
   elseif tile.value==7 then
     game.score+=100
+  elseif tile.value==8 then
+    player.hassword=true
+  elseif tile.value==9 then
+    player.hasshield=true
   end    
+  
   tile.value=0
   tile.sprite=nil
 end
