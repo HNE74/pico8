@@ -9,7 +9,7 @@ end
 function init_run()
   create_world()
   create_tiles()
-  create_dragon()
+  create_dragon(300,1,1)
   create_treasure_tiles()
   create_sword_tile()
   create_shield_tile()
@@ -17,10 +17,47 @@ function init_run()
   create_dead()
 end
 
+function init_next_level()
+  create_world()
+  create_tiles()
+  dragon_next_level()
+  create_treasure_tiles()
+  create_sword_tile()
+  create_shield_tile()
+  player_next_level()
+end
+
+function dragon_next_level()
+  local fireprob=dragon.fireprob-20;
+  if fireprob<=60 then
+    fireprob=60
+  end
+  local dcolor=dragon.maincolor+1
+  if dcolor>16 then
+    dcolor=1
+  end
+  local maxhits=dragon.maxhits+1
+  create_dragon(fireprob,dcolor,maxhits)
+end
+
+function player_next_level()
+  player.sprite=player.minsprite
+  player.fcount=0
+  player.hassword=false
+  player.sword=nil
+  player.swordpos=0
+  player.sowrdrawn=false
+  player.hasshield=false
+  player.shielddrawn=false
+
+  init_player_startpos()
+end
+
 function create_game()
   game={}
   game.bgcolor=0
-  game.state=1
+  game.waitcnt=0
+  game.waitmax=20
 
   game.states={}
   game.states["start"]=0
@@ -28,6 +65,7 @@ function create_game()
   game.states["player_hit"]=2
   game.states["dragon_dead"]=3
   game.states["game_over"]=4
+  game.states["next_level"]=5
   game.state=game.states["start"]
 end
 
@@ -189,7 +227,7 @@ function create_player()
   player.hasshield=false
   player.shieldsprite=28
   player.shielddrawn=false
-  player.lives=1
+  player.lives=3
   player.score=0
   
   init_player_startpos()
@@ -267,17 +305,17 @@ function create_dead()
   dead.cnt=0
 end
 
-function create_dragon()
+function create_dragon(fireprob,maincolor,maxhits)
   dragon={}
   dragon.w=32
   dragon.h=16
-  dragon.maincolor=1
+  dragon.maincolor=maincolor
   dragon.sprite=16
   dragon.fire={}
-  dragon.fireprob=100
+  dragon.fireprob=fireprob
   dragon.firemax=3
   dragon.hits=0
-  dragon.maxhits=2
+  dragon.maxhits=maxhits
 
   local dcol=true
   while(dcol==true) do
@@ -328,6 +366,8 @@ function _draw()
     draw_run()
   elseif game.state==game.states["game_over"] then 
     draw_game_over()
+  elseif game.state==game.states["next_level"] then 
+    draw_next_level()
   end
 end
 
@@ -344,6 +384,12 @@ function draw_game_over()
   print("score: "..player.score)
 end
 
+function draw_next_level()
+  cls(game.bgcolor)
+  camera(0,0)
+  print("you have killed the dragon!")
+  print("score: "..player.score)
+end
 
 function draw_run()
   draw_header()
@@ -363,7 +409,8 @@ end
 
 function draw_player()
   camera(world.xcam-world.xcamoffset,world.ycam-world.ycamoffset)
-  if game.state==game.states["run"] then
+  if game.state==game.states["run"] or
+     game.state==game.states["dragon_dead"] then
     if player.shielddrawn then
       spr(player.shieldsprite,player.xp,player.yp)
     else 
@@ -418,17 +465,44 @@ function _update()
     update_run()
   elseif game.state==game.states["game_over"] then
     update_game_over()
+  elseif game.state==game.states["next_level"] then
+    update_next_level()
+  end
+end
+
+function update_next_level()
+  if game.waitcnt<game.waitmax then
+    game.waitcnt+=1
+    return
+  end
+  
+  local b4,b5=btn(4),btn(5)
+  if b4 then
+    init_next_level()
+    game.waitcnt=0
+    game.state=game.states["run"]
   end
 end
 
 function update_game_over()
+  if game.waitcnt<game.waitmax then
+    game.waitcnt+=1
+    return
+  end
+  
   local b4,b5=btn(4),btn(5)
   if b4 then
+    game.waitcnt=0
     game.state=game.states["start"]
   end
 end
 
 function update_start()
+  if game.waitcnt<game.waitmax then
+    game.waitcnt+=1
+    return
+  end
+
   local b4,b5=btn(4),btn(5)
   if b4 then
     init_run()
@@ -503,7 +577,6 @@ function check_dragon_hit()
   end
 end
 
-
 function update_dragon_fire()
   if game.state==1 or game.state==2 then
     create_dragon_fire()
@@ -524,6 +597,16 @@ function update_player_hit()
   dead.cnt+=1
   if dead.cnt >=40 then
     if player.lives>0 then
+      if player.hassword then
+        player.hassword=false
+        create_sword_tile()
+      end
+      
+      if player.hasshield then
+        player.hasshield=false
+        create_shield_tile()
+      end
+    
       init_player_startpos()
       game.state=game.states["run"]
     else
@@ -537,8 +620,8 @@ end
 function update_dragon_dead()
   dragon_dead.cnt+=1
   if dragon_dead.cnt >=40 then
-    game.state=1
-    dragon.hits=0
+    game.waitcnt=0
+    game.state=game.states["next_level"]
     return
   end
   animate_object(dragon_dead)
@@ -619,16 +702,6 @@ end
 function player_fire_coll()
   for f in all(dragon.fire) do
     if intersect(player,f) then
-      if player.hassword then
-        player.hassword=false
-        create_sword_tile()
-      end
-      
-      if player.hasshield then
-        player.hasshield=false
-        create_shield_tile()
-      end
-      
       player.lives-=1
       game.state=2
       create_dead()
