@@ -20,9 +20,7 @@ end
 function create_game()
   game={}
   game.bgcolor=0
-  game.score=0
   game.state=1
-  game.lives=3
 
   game.states={}
   game.states["start"]=0
@@ -40,8 +38,8 @@ function create_world()
   world.xcam=0
   world.ycam=0
   world.tiles={}
-  world.width=30
-  world.height=30
+  world.width=25
+  world.height=25
   world.obstacles=25
 
   for y=1,world.height do
@@ -179,8 +177,6 @@ end
 function create_player()
   player={}
   player.w,player.h=8,8
-  player.xp=128/2-world.xcamoffset
-  player.yp=128/2-world.ycamoffset
   player.minsprite=1
   player.maxsprite=3
   player.sprite=player.minsprite
@@ -193,6 +189,33 @@ function create_player()
   player.hasshield=false
   player.shieldsprite=28
   player.shielddrawn=false
+  player.lives=1
+  player.score=0
+  
+  init_player_startpos()
+end
+
+function init_player_startpos()
+  local pcol=true
+  local px,py=-1,-1
+  while(pcol==true) do
+    player.xp=flr(rnd(world.width))*tile.w
+    player.yp=flr(rnd(world.height))*tile.h
+    pcol=false
+    for t in all(world.tiles) do
+      local anycol=intersect(t,player)
+      if anycol and t.value~=0 then
+        pcol=true
+      end
+    end
+    
+    if not pcol then
+      pcol=intersect(player,dragon)
+    end
+  end 
+  
+  world.xcam=player.xp-(64-world.xcamoffset)
+  world.ycam=player.yp-(64-world.ycamoffset)
 end
 
 function create_sword(pos)
@@ -303,13 +326,24 @@ function _draw()
     or game.state==game.states["player_hit"]
     or game.state==game.states["dragon_dead"] then    
     draw_run()
+  elseif game.state==game.states["game_over"] then 
+    draw_game_over()
   end
 end
 
 function draw_start()
-  cls()
+  cls(game.bgcolor)
+  camera(0,0)
   print("dragon treasure")
 end
+
+function draw_game_over()
+  cls(game.bgcolor)
+  camera(0,0)
+  print("game over")
+  print("score: "..player.score)
+end
+
 
 function draw_run()
   draw_header()
@@ -323,7 +357,7 @@ function draw_header()
   cls(game.bgcolor)
   camera(0,0)
   clip()
-  print("score:"..game.score.." lives:"..game.lives)
+  print("score:"..player.score.." lives:"..player.lives)
   print("player.x="..player.xp.." player.y="..player.yp)
 end
 
@@ -382,6 +416,15 @@ function _update()
     or game.state==game.states["player_hit"]
     or game.state==game.states["dragon_dead"] then    
     update_run()
+  elseif game.state==game.states["game_over"] then
+    update_game_over()
+  end
+end
+
+function update_game_over()
+  local b4,b5=btn(4),btn(5)
+  if b4 then
+    game.state=game.states["start"]
   end
 end
 
@@ -480,7 +523,12 @@ end
 function update_player_hit()
   dead.cnt+=1
   if dead.cnt >=40 then
-    game.state=1
+    if player.lives>0 then
+      init_player_startpos()
+      game.state=game.states["run"]
+    else
+      game.state=game.states["game_over"]  
+    end
     return
   end
   animate_object(dead)
@@ -526,17 +574,17 @@ end
 
 function take_item(tile)
   if tile.value==2 then
-    game.score+=5
+    player.score+=5
   elseif tile.value==3 then
-    game.score+=10
+    player.score+=10
   elseif tile.value==4 then
-    game.score+=15
+    player.score+=15
   elseif tile.value==5 then
-    game.score+=20
+    player.score+=20
   elseif tile.value==6 then
-    game.score+=50
+    player.score+=50
   elseif tile.value==7 then
-    game.score+=100
+    player.score+=100
   elseif tile.value==8 then
     player.hassword=true
   elseif tile.value==9 then
@@ -581,7 +629,7 @@ function player_fire_coll()
         create_shield_tile()
       end
       
-      game.lives-=1
+      player.lives-=1
       game.state=2
       create_dead()
       del(dragon.fire,f)
