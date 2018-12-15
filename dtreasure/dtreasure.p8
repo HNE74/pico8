@@ -13,17 +13,20 @@ function init_run()
   create_treasure_tiles()
   create_sword_tile()
   create_shield_tile()
+  create_skulls()
   create_player()
   create_dead()
 end
 
 function init_next_level()
+  game.level+=1
   create_world()
   create_tiles()
   dragon_next_level()
   create_treasure_tiles()
   create_sword_tile()
   create_shield_tile()
+  create_skulls()
   player_next_level()
 end
 
@@ -58,6 +61,7 @@ function create_game()
   game.bgcolor=0
   game.waitcnt=0
   game.waitmax=20
+  game.level=1
 
   game.states={}
   game.states["start"]=0
@@ -78,7 +82,7 @@ function create_world()
   world.tiles={}
   world.width=25
   world.height=25
-  world.obstacles=25
+  world.obstacles=40
 
   for y=1,world.height do
     world[y]={}
@@ -131,6 +135,13 @@ function create_tiles()
   end
 end
 
+function create_skulls()
+  skulls={}
+  for l=1,game.level+1 do
+  		add(skulls, create_skull())
+  end
+end
+
 function create_treasure_tiles()  
   local tp=nil
   for tr=2,7 do
@@ -145,12 +156,20 @@ function create_treasure_tiles()
 end
 
 function create_sword_tile()  
+  printh("swt")
   local tp=nil
-  local drcol=true
-  while drcol or tp==nil or tp.value~=0 do
+  local drcol,scol=true,true
+  while drcol or scol or tp==nil or tp.value~=0 do
     tp=world.tiles[flr(rnd(#world.tiles))+1]
     drcol=intersect(tp,dragon) 
+    scol=false
+    for s in all(skulls) do
+      scol=intersect(tp,s)
+      printh(scol)
+      if scol then break end
+    end
   end
+  printh("done swt")
 
   tp.value=8
   tp.sprite=fetch_tileval_sprite(tp.value)
@@ -158,10 +177,15 @@ end
 
 function create_shield_tile()
   local tp=nil
-  local drcol=true
-  while drcol or tp==nil or tp.value~=0 do
+  local scol,drcol=true,true
+  while scol or drcol or tp==nil or tp.value~=0 do
     tp=world.tiles[flr(rnd(#world.tiles))+1]
     drcol=intersect(tp,dragon)
+    scol=false
+    for s in all(skulls) do
+      scol=intersect(tp,s)
+      if scol then break end
+    end
   end
 
   tp.value=9
@@ -210,6 +234,47 @@ function fetch_tile_sprite(x,y)
   elseif world[y][x]==9 then
     return 28
   end    
+end
+
+function create_skull()
+  skull={}
+  skull.w,skull.h=8,8
+  skull.minsprite=48
+  skull.maxsprite=49
+  skull.sprite=skull.minsprite
+  skull.aframe=5
+  skull.fcount=0
+  skull.xd=flr(rnd(1))-1
+  skull.yd=flr(rnd(1))-1
+  
+  init_skull_startpos(skull)
+  return skull
+end
+
+function init_skull_startpos(skull)
+  local col=true
+  local x,y=-1,-1
+  while(col==true) do
+    skull.xp=flr(rnd(world.width))*tile.w
+    skull.yp=flr(rnd(world.height))*tile.h
+    col=false
+    for t in all(world.tiles) do
+      local anycol=intersect(t,skull)
+      if anycol and t.value~=0 then
+        col=true
+      end
+    end
+    
+    if not col then
+      for s in all(skulls) do
+        col=intersect(s,skull)
+      end
+    end
+    
+    if not col then
+      col=intersect(skull,dragon)
+    end
+  end 
 end
 
 function create_player()
@@ -396,6 +461,7 @@ function draw_run()
   draw_world()
   draw_player()
   draw_dragon()
+  draw_skulls()
   draw_dragon_fire()
 end 
 
@@ -432,6 +498,12 @@ function draw_world()
     if t.value~=0 then
       spr(t.sprite,t.xp,t.yp)
     end
+  end
+end
+
+function draw_skulls()
+  for s in all(skulls) do
+    spr(s.sprite,s.xp,s.yp)
   end
 end
 
@@ -562,6 +634,7 @@ function update_run()
   end
   
   update_dragon_fire()
+  update_skulls()
 end
 
 function check_dragon_hit()
@@ -577,8 +650,41 @@ function check_dragon_hit()
   end
 end
 
+function update_skulls()
+  for s in all(skulls) do
+    s.xp+=s.xd
+    s.yp+=s.yd
+    
+    local col=false
+    for t in all(world.tiles) do
+      if t.value>0 then
+        col=intersect(s,t)
+        if col then break end
+      end
+    end 
+    
+    if not col then
+      col=intersect(s,dragon)
+    end
+    
+    if col then
+      redirect_skull(s)
+    end
+  end
+end
+
+function redirect_skull(s)
+  s.xp-=s.xd
+  s.yp-=s.yd
+  repeat
+    s.xd=-1+flr(rnd(3))
+    s.yd=-1+flr(rnd(3))
+  until s.xd~=0 or s.yd~=0
+end
+
 function update_dragon_fire()
-  if game.state==1 or game.state==2 then
+  if game.state==game.states["run"] 
+    or game.state==game.states["player_hit"] then
     create_dragon_fire()
   end
   for f in all(dragon.fire) do 
