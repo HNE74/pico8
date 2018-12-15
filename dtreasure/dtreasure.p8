@@ -8,6 +8,7 @@ end
 
 function init_run()
   game.level=1
+  game.skullwait=0
   create_world()
   create_tiles()
   create_dragon(300,1,1)
@@ -21,6 +22,7 @@ end
 
 function init_next_level()
   game.level+=1
+  game.skullwait=0
   create_world()
   create_tiles()
   dragon_next_level()
@@ -141,7 +143,7 @@ end
 function create_skulls()
   skulls={}
   hitskulls={}
-  for l=1,game.level+1 do
+  for l=1,game.level-1 do
   		add(skulls, create_skull())
   end
 end
@@ -728,6 +730,11 @@ function check_dragon_hit()
 end
 
 function update_skulls()
+  if game.skullwait<100 then
+    game.skullwait+=1
+    return
+  end
+  
   for s in all(skulls) do
     s.xp+=s.xd
     s.yp+=s.yd
@@ -792,6 +799,7 @@ function update_player_hit()
         create_shield_tile()
       end
     
+      game.skullwait=0
       init_player_startpos()
       game.state=game.states["run"]
     else
