@@ -484,12 +484,14 @@ function draw_header()
   cls(game.bgcolor)
   camera(0,0)
   clip()
+  color(5)
+  rectfill(0,0,128,12)
   color(10)
-  print("score: "..player.score,0,0)
+  print("score: "..player.score,1,1)
   color(9)
   print("level: "..game.level,90,3)
   color(11)
-  print("lives: "..player.lives,0,6)
+  print("lives: "..player.lives,1,7)
   color(5)
   if player.hassword then
     spr(27,52,2)
@@ -497,7 +499,7 @@ function draw_header()
   if player.hasshield then
     spr(28,62,2)
   end
-  line(0,12,128,12) 
+--  line(0,12,128,12) 
 end
 
 function draw_player()
