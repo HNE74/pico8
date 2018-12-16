@@ -7,8 +7,7 @@ function _init()
 end
 
 function init_run()
-  game.level=1
-  game.skullwait=0
+  init_game()
   create_world()
   create_tiles()
   create_dragon(300,1,1)
@@ -20,9 +19,21 @@ function init_run()
   create_dead()
 end
 
+function init_game()
+  game.level=1
+  game.skullwait=0
+  game.treasure=0
+  game.checkscore=0
+  game.bonus=false
+  game.lifeearned=false
+end
+
 function init_next_level()
   game.level+=1
-  game.skullwait=0
+  game.skullwait=0      
+  game.bonus=false
+  game.treasure=0
+  game.lifeearned=false
   create_world()
   create_tiles()
   dragon_next_level()
@@ -474,6 +485,13 @@ function draw_next_level()
   camera(0,0)
   print("you have killed the dragon!")
   print("score: "..player.score)
+  if game.bonus then
+    print("all treasures found bonus 250 points!")
+  end
+  
+  if game.lifeearned then
+    print("extra life earned!") 
+  end
 end
 
 function draw_run()
@@ -588,7 +606,7 @@ function update_next_level()
     game.waitcnt+=1
     return
   end
-  
+    
   local b4,b5=btn(4),btn(5)
   if b4 then
     init_next_level()
@@ -724,8 +742,26 @@ function check_dragon_hit()
     if dragon.hits>dragon.maxhits then
       sfx(4)
       create_dragon_dead()
+      add_player_bonus()
+      add_player_life()
       game.state=game.states["dragon_dead"]
     end
+  end
+end
+
+function add_player_life()
+  local tscore=flr(player.score/1000)*1000
+  if tscore>game.checkscore then
+    player.lives+=1 
+    game.checkscore=tscore 
+    game.lifeearned=true 
+  end 
+end
+
+function add_player_bonus()
+  if game.treasure==6 then
+    player.score+=250
+    game.bonus=true
   end
 end
 
@@ -814,7 +850,7 @@ function update_dragon_dead()
   dragon_dead.cnt+=1
   if dragon_dead.cnt >=40 then
     game.waitcnt=0
-    game.state=game.states["next_level"]
+    game.state=game.states["next_level"]    
     return
   end
   animate_object(dragon_dead)
@@ -855,16 +891,22 @@ end
 function take_item(tile)
   if tile.value==2 then
     player.score+=5
+    game.treasure+=1
   elseif tile.value==3 then
     player.score+=10
+    game.treasure+=1
   elseif tile.value==4 then
     player.score+=15
+    game.treasure+=1
   elseif tile.value==5 then
     player.score+=20
+    game.treasure+=1
   elseif tile.value==6 then
     player.score+=50
+    game.treasure+=1
   elseif tile.value==7 then
     player.score+=100
+    game.treasure+=1    
   elseif tile.value==8 then
     player.hassword=true
   elseif tile.value==9 then
