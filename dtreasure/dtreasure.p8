@@ -547,14 +547,22 @@ end
 function draw_next_level()
   cls(game.bgcolor)
   camera(0,0)
-  print("you have killed the dragon!")
-  print("score: "..player.score)
-  if game.bonus then
-    print("all treasures found bonus 250 points!")
-  end
+
+  color(5)
+  rectfill(4,20,128,31)
+  color(9)
+  rectfill(2,22,124,32)
+  color(0)  
+  local xs,ys=10,26
+  print("you have killed the dragon!",xs,ys)
+
+  color(10)
+  stxt="score: "..player.score
+  print(stxt,txt_hcenter(stxt),40)
   
   if game.lifeearned then
-    print("extra life earned!") 
+    color(11)
+    print("extra life earned!",30,50) 
   end
 end
 
