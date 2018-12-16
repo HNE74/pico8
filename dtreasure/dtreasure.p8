@@ -524,8 +524,24 @@ end
 function draw_game_over()
   cls(game.bgcolor)
   camera(0,0)
-  print("game over")
-  print("score: "..player.score)
+  
+  color(5)
+  rectfill(4,20,128,41)
+  color(9)
+  rectfill(2,22,124,42)
+  color(0)  
+  local xs,ys=6,26
+  print("you have been defeated.",xs,ys)
+  print("                  game over!",xs,ys+9)
+  
+  local stxt="final score: "..player.score
+  color(10)
+  print(stxt,txt_hcenter(stxt),50)
+  
+  color(11)
+  if player.score>game.highscore then
+  print("a new highscore!",32,60) 
+  end
 end
 
 function draw_next_level()
@@ -675,6 +691,9 @@ function update_game_over()
   
   local b4,b5=btn(4),btn(5)
   if b4 then
+    if player.score>game.highscore then
+      game.highscore=player.score
+    end
     game.waitcnt=0
     game.state=game.states["start"]
   end
