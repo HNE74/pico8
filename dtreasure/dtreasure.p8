@@ -560,9 +560,17 @@ function draw_next_level()
   stxt="score: "..player.score
   print(stxt,txt_hcenter(stxt),40)
   
+  ys=50  
   if game.lifeearned then
     color(11)
-    print("extra life earned!",30,50) 
+    print("extra life earned.",30,ys) 
+    ys+=8
+  end
+  
+  if game.bonus then
+    color(13)
+    print("all treasures captured bonus",10,ys)
+    print("    of 250 points earned.   ",10,ys+8)  
   end
 end
 
