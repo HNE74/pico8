@@ -26,6 +26,7 @@ function init_game()
   game.checkscore=0
   game.bonus=false
   game.lifeearned=false
+  game.waitcnt=0
 end
 
 function init_next_level()
@@ -75,7 +76,7 @@ function create_game()
   game.highscore=0
   game.bgcolor=0
   game.waitcnt=0
-  game.waitmax=20
+  game.waitmax=50
   game.level=1
 
   game.states={}
@@ -679,7 +680,7 @@ end
 
 function update_next_level()
   if(game.waitcnt==0) then
-    sfx(22)
+    music(10)
   end
   
   if game.waitcnt<game.waitmax then
@@ -689,6 +690,7 @@ function update_next_level()
     
   local b4,b5=btn(4),btn(5)
   if b4 then
+    music(11)
     init_next_level()
     game.waitcnt=0
     game.state=game.states["run"]
@@ -710,6 +712,7 @@ function update_game_over()
     if player.score>game.highscore then
       game.highscore=player.score
     end
+    sfx(-1)
     game.waitcnt=0
     game.state=game.states["start"]
   end
@@ -1287,8 +1290,8 @@ __sfx__
 000c0000195101a40019550204002455010000245501d500145501350014550080001e5501e5001e550253001955008000195501f3002755027500275502e500225502250022550153001955018550145500d550
 000a00002175021050200002a7502a0501060024750247500e60023750230500a60020750207502970028750280501f7001775017050000000c7500c050000001675016050000000f7500f750290000d7500d750
 __music__
-00 01424344
-04 15164344
+00 41424344
+04 55564344
 00 41424344
 00 41424344
 00 41424344
