@@ -10,7 +10,7 @@ function init_run()
   init_game()
   create_world()
   create_tiles()
-  create_dragon(300,1,1)
+  create_dragon(200,1,1)
   create_treasure_tiles()
   create_sword_tile()
   create_shield_tile()
@@ -156,7 +156,7 @@ end
 function create_skulls()
   skulls={}
   hitskulls={}
-  for l=1,game.level-1 do
+  for l=1,game.level do
   		add(skulls, create_skull())
   end
 end
