@@ -156,7 +156,11 @@ end
 function create_skulls()
   skulls={}
   hitskulls={}
-  for l=1,game.level do
+  local maxsk=game.level
+  if maxsk>5 then
+    maxsk=5
+  end
+  for l=1,maxsk do
   		add(skulls, create_skull())
   end
 end
@@ -936,6 +940,11 @@ function update_player_hit()
     
       game.skullwait=0
       init_player_startpos()
+      for t in all(tiles) do
+        if t.value==0 then
+          del(tiles,t)
+        end
+      end
       game.state=game.states["run"]
     else
       game.state=game.states["game_over"]  
