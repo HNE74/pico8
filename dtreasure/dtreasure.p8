@@ -1,6 +1,8 @@
 pico-8 cartridge // http://www.pico-8.com
 version 16
 __lua__
+-- dragon treasure
+-- noltisoft
 
 function _init()
   create_game()
