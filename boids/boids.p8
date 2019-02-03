@@ -9,8 +9,11 @@ function _init()
 end
 
 function init_boids()
-  boidgrp={}
+  vlimit=2.0
+  dlimit=2.0
+  dcorrmag=5.0
   
+  boidgrp={}  
   add(boidgrp, create_boid(1,50,70))
   add(boidgrp, create_boid(2,50,50))
   add(boidgrp, create_boid(3,60,50))
@@ -57,6 +60,11 @@ function _update()
     
     b.d=addvec(b.v,v1)
     b.d=addvec(b.d,v2)
+    
+    limit_velocity(b)
+    
+    local v3=keep_distance(b)
+    b.d=addvec(b.d,v3)
   end
   
   for b in all(boidgrp) do
@@ -70,29 +78,50 @@ end
 -- *** boid rules ***
 -- ******************
 function fly_center(boid)
-  t=zerovec()
+  local t=zerovec()
   for b in all(boidgrp) do
     if b~=boid then
       t=addvec(b.p,t)
     end
   end
   
-  avg=scalardiv(t,#boidgrp-1)
-  r=scalardiv(subvec(avg,boid.p),50.0)
+  local avg=scalardiv(t,#boidgrp-1)
+  local r=scalardiv(subvec(avg,boid.p),50.0)
   return r
 end
 
 function match_velocity(boid)
-  pv=zerovec()
+  local pv=zerovec()
   for b in all(boidgrp) do
     if b~=boid then
       pv=addvec(b.v,pv)
     end
   end
 
-  avg=scalardiv(pv,#boidgrp-1)
-  r=scalardiv(subvec(avg,boid.v),20.)
+  local avg=scalardiv(pv,#boidgrp-1)
+  local r=scalardiv(subvec(avg,boid.v),20.)
   return r
+end
+
+function keep_distance(boid)
+  local dc=zerovec()
+  for b in all(boidgrp) do
+    if b~=boid then
+      local dst=subvec(boid.p,b.p)
+      dst=scalarmul(dst,dlimit)
+      if magnitude(dst)<dcorrmag then
+        dc=subvec(dc,dst)
+      end
+    end
+  end
+  return dc
+end
+
+function limit_velocity(boid)
+  vel=magnitude(boid.v)
+  if vel>vlimit then
+    boid.d=scalarmul(scalardiv(boid.v,vel),vlimit)
+  end
 end
 
 -- ********************
