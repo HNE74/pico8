@@ -9,20 +9,28 @@ function _init()
 end
 
 function init_boids()
+  xmin=10
+  xmax=118
+  ymin=10
+  ymax=118
+  bcv=10.0
+  
   vlimit=2.0
   dlimit=2.0
   dcorrmag=5.0
   
   boidgrp={}  
-  add(boidgrp, create_boid(1,50,70))
-  add(boidgrp, create_boid(2,50,50))
-  add(boidgrp, create_boid(3,60,50))
-  add(boidgrp, create_boid(4,50,60))
+  add(boidgrp, create_boid(1,10,70,3))
+  add(boidgrp, create_boid(2,10,10,4))
+  add(boidgrp, create_boid(3,20,15,5))
+  add(boidgrp, create_boid(4,5,5,6))
+  add(boidgrp, create_boid(4,5,18,7))
 end
 
-function create_boid(id,x,y)
+function create_boid(id,x,y,cl)
   boid={}
   boid.id=id
+  boid.cl=cl
   boid.p={} -- position
   boid.p.x=x
   boid.p.y=y
@@ -46,7 +54,7 @@ end
 function draw_boids()
   color(3)
   for b in all(boidgrp) do
-    circfill(b.p.x,b.p.y,2,3)
+    circfill(b.p.x,b.p.y,2,b.cl)
   end
 end
 
@@ -65,6 +73,9 @@ function _update()
     
     local v3=keep_distance(b)
     b.d=addvec(b.d,v3)
+    
+    local v4=bound_position(b)
+    b.d=addvec(b.d,v4)
   end
   
   for b in all(boidgrp) do
@@ -115,6 +126,22 @@ function keep_distance(boid)
     end
   end
   return dc
+end
+
+function bound_position(boid)
+  local cv=zerovec()
+  if boid.p.x<xmin then
+    cv.x=10
+  elseif boid.p.x>xmax then
+    cv.x=-10
+  end
+
+  if boid.p.y<ymin then
+    cv.y=10
+  elseif boid.p.y>ymax then
+    cv.y=-10
+  end
+  return cv
 end
 
 function limit_velocity(boid)
