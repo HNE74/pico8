@@ -52,8 +52,11 @@ end
 -- **********************
 function _update()
   for b in all(boidgrp) do
-    v1=fly_center(b)
-    b.d=addvec(b.d,v1)
+    local v1=fly_center(b)
+    local v2=match_velocity(b)
+    
+    b.d=addvec(b.v,v1)
+    b.d=addvec(b.d,v2)
   end
   
   for b in all(boidgrp) do
@@ -63,13 +66,11 @@ function _update()
   end
 end
 
--- ********************
--- *** calculations ***
--- ********************
+-- ******************
+-- *** boid rules ***
+-- ******************
 function fly_center(boid)
-  t={}
-  t.x,t.y=0,0
-  
+  t=zerovec()
   for b in all(boidgrp) do
     if b~=boid then
       t=addvec(b.p,t)
@@ -80,7 +81,23 @@ function fly_center(boid)
   r=scalardiv(subvec(avg,boid.p),50.0)
   return r
 end
- 
+
+function match_velocity(boid)
+  pv=zerovec()
+  for b in all(boidgrp) do
+    if b~=boid then
+      pv=addvec(b.v,pv)
+    end
+  end
+
+  avg=scalardiv(pv,#boidgrp-1)
+  r=scalardiv(subvec(avg,boid.v),20.)
+  return r
+end
+
+-- ********************
+-- *** calculations ***
+-- ******************** 
 function addvec(v1,v2)
   local r={}
   r.x,r.y=0,0
@@ -116,6 +133,12 @@ end
 function magnitude(v)
   r=sqrt(v.x^2+v.y^2)
   return r
+end
+
+function zerovec()
+  local v={}
+  v.x,v.y=0,0
+  return v
 end
 
 -- *****************
