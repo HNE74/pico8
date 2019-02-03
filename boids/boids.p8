@@ -5,6 +5,7 @@ __lua__
 -- *** initialization ***
 -- **********************
 function _init()
+  btncnt=0
   init_boids()
 end
 
@@ -20,11 +21,11 @@ function init_boids()
   dcorrmag=5.0
   
   boidgrp={}  
-  add(boidgrp, create_boid(1,10,70,3))
-  add(boidgrp, create_boid(2,10,10,4))
-  add(boidgrp, create_boid(3,20,15,5))
-  add(boidgrp, create_boid(4,5,5,6))
-  add(boidgrp, create_boid(4,5,18,7))
+  add(boidgrp, create_boid(1,10,70,11))
+  add(boidgrp, create_boid(2,10,10,11))
+  add(boidgrp, create_boid(3,20,15,11))
+  add(boidgrp, create_boid(4,5,5,11))
+  add(boidgrp, create_boid(4,5,18,11))
 end
 
 function create_boid(id,x,y,cl)
@@ -43,12 +44,23 @@ function create_boid(id,x,y,cl)
   return boid
 end
 
+function create_target(x,y,cl)
+  target={}
+  target.p={}
+  target.p.x,target.p.y=x,y
+  target.cl=cl
+  return target
+end
+
 -- *************************
 -- *** drawing on screen ***
 -- *************************
 function _draw()
   cls()
   draw_boids()
+  if target~=nil then
+    circfill(target.p.x,target.p.y,2,5)
+  end
 end 
 
 function draw_boids()
@@ -62,12 +74,22 @@ end
 -- *** update objects ***
 -- **********************
 function _update()
+	 handle_buttons()
+
   for b in all(boidgrp) do
     local v1=fly_center(b)
     local v2=match_velocity(b)
+    local v5=nil
+    if target~=nil then
+      v5=chase_target(b)
+    end
     
     b.d=addvec(b.v,v1)
     b.d=addvec(b.d,v2)
+    
+    if target~=nil then
+      b.d=addvec(b.d,v5)
+    end
     
     limit_velocity(b)
     
@@ -81,7 +103,15 @@ function _update()
   for b in all(boidgrp) do
     b.v=b.d
     b.p=addvec(b.p,b.v)    
-    print_boid(b)
+  end
+end
+
+function handle_buttons()
+  if btn(4) then
+    local x=flr(rnd(xmax-xmin))+xmin
+    local y=flr(rnd(ymax-ymin))+ymin
+    create_target(x,y,5)
+    wait(100)
   end
 end
 
@@ -149,6 +179,11 @@ function limit_velocity(boid)
   if vel>vlimit then
     boid.d=scalarmul(scalardiv(boid.v,vel),vlimit)
   end
+end
+
+function chase_target(boid)
+  local r=scalardiv(subvec(target.p,boid.p),100.0)
+  return r
 end
 
 -- ********************
