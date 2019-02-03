@@ -16,8 +16,8 @@ function init_boids()
   ymax=118
   bcv=10.0
   
-  vlimit=2.0
-  dlimit=2.0
+  vlimit=2.5
+  dlimit=1
   dcorrmag=5.0
   
   boidgrp={} 
@@ -25,11 +25,16 @@ function init_boids()
   add(boidgrp, create_boid(2,10,10,11))
   add(boidgrp, create_boid(3,20,15,11))
   add(boidgrp, create_boid(4,5,5,11))
-  add(boidgrp, create_boid(5,5,18,11))     
+  add(boidgrp, create_boid(5,25,18,11))     
+  add(boidgrp, create_boid(6,35,28,11))     
+  add(boidgrp, create_boid(7,55,38,11))     
+  add(boidgrp, create_boid(8,56,80,11))     
+  add(boidgrp, create_boid(9,67,28,11))     
+
 end
 
 function create_boid(id,x,y,cl)
-  boid={}
+  local boid={}
   boid.id=id
   boid.cl=cl
   boid.p={} -- position
@@ -64,6 +69,8 @@ end
 -- *************************
 function _draw()
   cls()
+  color(4)
+  print("     ◆◆◆ b o i d s ◆◆◆")
   draw_boids()
   if target~=nil then
     circfill(target.p.x,target.p.y,2,target.cl)
@@ -71,6 +78,8 @@ function _draw()
   if obstacle~=nil then
     circfill(obstacle.p.x,obstacle.p.y,2,obstacle.cl)
   end
+  color(12)
+  print("x,y to toggle target/obstacle",10,118)
 end 
 
 function draw_boids()
@@ -187,7 +196,7 @@ function keep_distance(boid)
       local dst=subvec(boid.p,b.p)
       dst=scalarmul(dst,dlimit)
       if magnitude(dst)<dcorrmag then
-        dc=subvec(dc,dst)
+        dc=subvec(dst,dc)
       end
     end
   end
