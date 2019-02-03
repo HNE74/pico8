@@ -20,12 +20,12 @@ function init_boids()
   dlimit=2.0
   dcorrmag=5.0
   
-  boidgrp={}  
+  boidgrp={} 
   add(boidgrp, create_boid(1,10,70,11))
   add(boidgrp, create_boid(2,10,10,11))
   add(boidgrp, create_boid(3,20,15,11))
   add(boidgrp, create_boid(4,5,5,11))
-  add(boidgrp, create_boid(4,5,18,11))
+  add(boidgrp, create_boid(5,5,18,11))     
 end
 
 function create_boid(id,x,y,cl)
@@ -49,8 +49,15 @@ function create_target(x,y,cl)
   target.p={}
   target.p.x,target.p.y=x,y
   target.cl=cl
-  return target
 end
+
+function create_obstacle(x,y,cl)
+  obstacle={}
+  obstacle.p={}
+  obstacle.p.x,obstacle.p.y=x,y
+  obstacle.cl=cl
+end
+
 
 -- *************************
 -- *** drawing on screen ***
@@ -59,7 +66,10 @@ function _draw()
   cls()
   draw_boids()
   if target~=nil then
-    circfill(target.p.x,target.p.y,2,5)
+    circfill(target.p.x,target.p.y,2,target.cl)
+  end
+  if obstacle~=nil then
+    circfill(obstacle.p.x,obstacle.p.y,2,obstacle.cl)
   end
 end 
 
@@ -77,11 +87,18 @@ function _update()
 	 handle_buttons()
 
   for b in all(boidgrp) do
+    print_boid(b)  
+  end
+
+  for b in all(boidgrp) do
     local v1=fly_center(b)
     local v2=match_velocity(b)
     local v5=nil
     if target~=nil then
       v5=chase_target(b)
+    end
+    if obstacle~=nil then
+      v6=avoid_obstacle(b)
     end
     
     b.d=addvec(b.v,v1)
@@ -89,6 +106,9 @@ function _update()
     
     if target~=nil then
       b.d=addvec(b.d,v5)
+    end
+    if obstacle~=nil then
+      b.d=addvec(b.d,v6)
     end
     
     limit_velocity(b)
@@ -108,11 +128,27 @@ end
 
 function handle_buttons()
   if btn(4) then
-    local x=flr(rnd(xmax-xmin))+xmin
-    local y=flr(rnd(ymax-ymin))+ymin
-    create_target(x,y,5)
+    if target==nil then
+      local x=flr(rnd(xmax-xmin))+xmin
+      local y=flr(rnd(ymax-ymin))+ymin
+      create_target(x,y,8)
+    else
+      target=nil
+    end
     wait(100)
   end
+
+  if btn(5) then
+    if obstacle==nil then
+      local x=flr(rnd(xmax-xmin))+xmin
+      local y=flr(rnd(ymax-ymin))+ymin
+      create_obstacle(x,y,13)
+    else
+      obstacle=nil
+    end
+    wait(100)
+  end
+
 end
 
 -- ******************
@@ -183,6 +219,20 @@ end
 
 function chase_target(boid)
   local r=scalardiv(subvec(target.p,boid.p),100.0)
+  return r
+end
+
+function avoid_obstacle(boid)
+  local dist=scalardiv(subvec(boid.p,obstacle.p),100.0)
+  local mag=magnitude(dist)
+  local direction=scalardiv(dist,mag)
+  local absvel=1.5-mag
+  if absvel<0 then
+    absvel=0
+  else
+    absvel=absvel^2/3
+  end
+  local r=scalarmul(direction,absvel)
   return r
 end
 
